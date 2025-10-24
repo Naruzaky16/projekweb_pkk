@@ -1,7 +1,8 @@
 KELOMPOK STARSANDWICH
--FAIZA BAGAS
 
--ADRIAN MAULANA YUSUF
+-Faiza Bagas
+
+-Adrian Maulana Yusuf
 
 -Razy Mizan
 
