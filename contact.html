@@ -4,129 +4,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact - STAR SANDWICH</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>CONTACT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Potta+One&display=swap"
+        rel="stylesheet">
+    <script src="https://kit.fontawesome.com/26a680fbef.js" crossorigin="anonymous"></script>
+
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <style>
         body {
-            background: linear-gradient(135deg, #ffe6e6, #fff0f5);
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
+            font-family: "Poppins", sans-serif;
             margin: 0;
-            padding-top: 50px;
-        }
-
-        h2 {
-            margin-bottom: 30px;
-            color: maroon;
-            font-size: 2.2rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .contact-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 30px;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 40px 50px;
-            border-radius: 20px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            animation: fadeIn 1s ease-out;
-        }
-
-        .contact-buttons {
-            display: flex;
-            gap: 25px;
-        }
-
-        .bicon {
-            height: 70px;
-            width: 70px;
-            border: 2px solid maroon;
-            border-radius: 50%;
-            background-color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-        }
-
-        .bicon:hover {
-            transform: scale(1.2);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .icon {
-            width: 65%;
-            height: 65%;
+            padding: 20px;
+            background: #f5f5f5;
         }
 
         a {
             text-decoration: none;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .desc {
+        header {
             text-align: center;
-            max-width: 400px;
-            color: #333;
-            font-size: 1rem;
-            line-height: 1.5;
+            margin-bottom: 20px;
         }
 
-        /* Responsive */
-        @media(max-width:600px) {
-            .contact-buttons {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
+        header h1 {
+            font-family: "Potta One", sans-serif;
         }
+
+        .kontak {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, 180px);
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            padding: 15px;
+            height: 120px;
+            color: white;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card b {
+            font-size: 16px;
+            color: white;
+        }
+
+        .wa { background: #B1D0A9; }
+        .ig { background: #F6A5C0; }
+        .twitter { background: #9DC8F0; }
+        .shopee { background: #F4C07A; }
+        .tt { background: #abb8c3; }
+        .email { background: #cf2e2e }
+
+        .card a {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        /* MAP */
+        #map {
+            height: 300px;
+            width: 1000px;
+            margin: 25px auto;
+            border-radius: 25px;
+            border: 10px solid maroon;
+            background-color: rgb(0, 0, 0);
+            display: block;
+        }
+        /* TOMBOL KEMBALI BULAT */
+        .back-circle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: maroon;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            z-index: 9999;
+            transition: 0.2s;
+        }
+
+        .back-circle:hover {
+            background-color: #a00000;
+            transform: scale(1.1);
+        }
+
     </style>
 </head>
 
 <body>
-    <h2>CONTACT US</h2>
-    <div class="contact-container">
-        <p class="desc">Hubungi kami melalui salah satu platform berikut. Kami senang mendengar dari Anda! </p>
-        <div class="contact-buttons">
-            <a href="https://api.whatsapp.com/send/?phone=%2B6285691801623&text&type=phone_number&app_absent=0" target="_blank">
-                <div class="bicon">
-                    <img src="https://cdn1.iconfinder.com/data/icons/apps-8/64/whatsapp-wa-apps-platform-512.png" class="icon">
-                </div>
-            </a>
-            <a href="https://www.instagram.com/starsandw1ch/" target="_blank">
-                <div class="bicon">
-                    <img src="https://cdn1.iconfinder.com/data/icons/apps-8/64/instagram-ig-apps-platform-128.png" class="icon">
-                </div>
-            </a>
-            <a href="mailto:starsandwich01@gmail.com">
-                <div class="bicon">
-                    <img src="https://cdn0.iconfinder.com/data/icons/social-media-and-logos-11/32/Gmail_envelope_letter_email_Gmail_envelope_letter_email-128.png" class="icon">
-                </div>
-            </a>
-            <a href="https://youtube.com/@razymizan?si=81GhAxPBi2Zdl1JX" target="_blank">
-                <div class="bicon">
-                    <img src="https://cdn0.iconfinder.com/data/icons/brands-colored-2/196/youtube-social-network-brand-logo-1024.png" class="icon">
-                </div>
-            </a>
+
+    <!-- TOMBOL KEMBALI BULAT -->
+    <a href="index.html" class="back-circle">
+        <i class="fa-solid fa-arrow-left"></i>
+    </a>
+
+    <header>
+        <h1>CONTACT</h1>
+    </header>
+
+    <div class="kontak">
+        <div class="card wa">
+            <a href="https://wa.me/62895709043700" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
+            <b>WhatsApp</b>
+        </div>
+
+        <div class="card ig">
+            <a href="https://www.instagram.com/starsandw1ch?igsh=ZGM2amUyeGd5a3Zn" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+            <b>Instagram</b>
+        </div>
+
+        <div class="card email">
+            <a href="mailto:starsandwich01@gmail.com"><i class="fa-solid fa-envelope"></i></a>
+            <b>Email</b>
+        </div>
+
+        <div class="card twitter">
+            <a href="https://x.com/starsandwich1" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+            <b>X</b>
+        </div>
+
+        <div class="card tt">
+            <a href="https://www.tiktok.com/@sstarsandwich" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+            <b>TikTok</b>
+        </div>
+
+        <div class="card shopee">
+            <a href="https://id.shp.ee/lnh1aos?smtt=0.0.9" target="_blank"><i class="fa-solid fa-bag-shopping"></i></a>
+            <b>Shopee</b>
         </div>
     </div>
+
+    <!-- MAP -->
+    <div class="container-map">
+        <div id="map"></div>
+    </div>
+
+    <script>
+        // Inisiasi MAP
+        var map = L.map('map').setView([-6.407074690831747, 107.46139254067545], 17);
+
+        // Tile Background Map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 25
+        }).addTo(map);
+
+        // Marker
+        L.marker([-6.407074690831747, 107.46139254067545]).addTo(map)
+            .bindPopup('STAR SANDWICH')
+            .openPopup();
+    </script>
+
 </body>
 
 </html>
