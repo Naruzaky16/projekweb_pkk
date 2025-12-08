@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - STAR SANDWICH</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        body {
+            background: linear-gradient(135deg, #ffe6e6, #fff0f5);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding-top: 50px;
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            color: maroon;
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .contact-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 40px 50px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .contact-buttons {
+            display: flex;
+            gap: 25px;
+        }
+
+        .bicon {
+            height: 70px;
+            width: 70px;
+            border: 2px solid maroon;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .bicon:hover {
+            transform: scale(1.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .icon {
+            width: 65%;
+            height: 65%;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .desc {
+            text-align: center;
+            max-width: 400px;
+            color: #333;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Responsive */
+        @media(max-width:600px) {
+            .contact-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>CONTACT US</h2>
+    <div class="contact-container">
+        <p class="desc">Hubungi kami melalui salah satu platform berikut. Kami senang mendengar dari Anda! </p>
+        <div class="contact-buttons">
+            <a href="https://api.whatsapp.com/send/?phone=%2B6285691801623&text&type=phone_number&app_absent=0" target="_blank">
+                <div class="bicon">
+                    <img src="https://cdn1.iconfinder.com/data/icons/apps-8/64/whatsapp-wa-apps-platform-512.png" class="icon">
+                </div>
+            </a>
+            <a href="https://www.instagram.com/starsandw1ch/" target="_blank">
+                <div class="bicon">
+                    <img src="https://cdn1.iconfinder.com/data/icons/apps-8/64/instagram-ig-apps-platform-128.png" class="icon">
+                </div>
+            </a>
+            <a href="mailto:starsandwich01@gmail.com">
+                <div class="bicon">
+                    <img src="https://cdn0.iconfinder.com/data/icons/social-media-and-logos-11/32/Gmail_envelope_letter_email_Gmail_envelope_letter_email-128.png" class="icon">
+                </div>
+            </a>
+            <a href="https://youtube.com/@razymizan?si=81GhAxPBi2Zdl1JX" target="_blank">
+                <div class="bicon">
+                    <img src="https://cdn0.iconfinder.com/data/icons/brands-colored-2/196/youtube-social-network-brand-logo-1024.png" class="icon">
+                </div>
+            </a>
+        </div>
+    </div>
+</body>
+
+</html>
