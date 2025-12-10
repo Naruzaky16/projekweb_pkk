@@ -226,9 +226,10 @@
 
     <div id="cart-container"></div>
 
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-e_KLMEuUjbUGC0HO"></script>
+    <!-- GANTI DENGAN CLIENT KEY ANDA -->
+
     <script>
-        // FUNGSI INTI UNTUK MENGELOLA KERANJANG DI LOCALSTORAGE
-        // ----------------------------------------------------
         function saveCart(cart) {
             localStorage.setItem('cart', JSON.stringify(cart));
         }
@@ -236,11 +237,8 @@
         function getCart() {
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             return cart.filter(item =>
-                item &&
-                typeof item.nama === 'string' &&
-                item.nama.trim() !== '' &&
-                typeof item.harga === 'number' &&
-                item.qty > 0
+                item && typeof item.nama === 'string' && item.nama.trim() !== '' &&
+                typeof item.harga === 'number' && item.qty > 0
             );
         }
 
@@ -259,8 +257,49 @@
             renderCart();
         }
 
-        // FUNGSI UTAMA: PROSES CHECKOUT KE SERVER (DATABASE)
-        // -------------------------------------------------
+        // ✅ FUNGSI BARU: HANDLE PEMBAYARAN MIDTRANS
+        async function proceedToMidtransPayment(cart, totalAmount, paymentMethod) {
+            try {
+                const response = await fetch('/create-midtrans-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cartData: cart, totalAmount, paymentMethod })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.token) {
+                    // Simpan orderId sementara ke localStorage (opsional, untuk referensi)
+                    localStorage.setItem('pendingOrderId', data.orderId);
+
+                    // Tampilkan popup Midtrans
+                    snap.pay(data.token, {
+                        onSuccess: (result) => {
+                            alert('Pembayaran berhasil!');
+                            localStorage.removeItem('cart');
+                            window.location.href = '/history';
+                        },
+                        onPending: (result) => {
+                            alert('Pembayaran sedang diproses. Silakan cek email atau notifikasi.');
+                            window.location.href = '/history';
+                        },
+                        onError: (result) => {
+                            alert('Pembayaran gagal. Silakan coba lagi.');
+                        },
+                        onClose: () => {
+                            alert('Anda menutup popup pembayaran.');
+                        }
+                    });
+                } else {
+                    alert('Gagal: ' + (data.error || 'Token tidak tersedia'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Kesalahan koneksi ke server pembayaran.');
+            }
+        }
+
+        // ✅ FUNGSI: PROSES CHECKOUT SESUAI METODE
         async function proceedToCheckout() {
             const cart = getCart();
             if (cart.length === 0) {
@@ -270,76 +309,53 @@
 
             const selectedPayment = document.querySelector('input[name="metode"]:checked');
             if (!selectedPayment) {
-                alert("Mohon pilih metode pembayaran terlebih dahulu!");
+                alert("Pilih metode pembayaran!");
                 return;
             }
 
-            const paymentMethod = selectedPayment.value.toUpperCase();
-
-            // Hitung total akhir
+            const paymentMethod = selectedPayment.value;
             const totalAmount = cart.reduce((sum, item) => sum + (item.harga * item.qty), 0);
 
-            // Data yang akan dikirim ke Express (rute /checkout-process)
-            const dataToSend = {
-                cartData: cart,
-                totalAmount: totalAmount,
-                paymentMethod: paymentMethod
-            };
+            if (paymentMethod === 'cash') {
+                // Gunakan logika lama (simpan langsung ke DB)
+                if (!confirm(`Konfirmasi Pesanan:\nTotal: Rp ${totalAmount.toLocaleString('id-ID')}\nMetode: CASH\n\nLanjutkan?`)) return;
 
-            // Konfirmasi akhir dari client
-            if (!confirm(`Konfirmasi Pesanan:\nTotal: Rp ${totalAmount.toLocaleString('id-ID')}\nMetode: ${paymentMethod}\n\nLanjutkan ke pembayaran?`)) {
-                return;
-            }
-
-            try {
-                // Mengirim data ke server
                 const response = await fetch('/checkout-process', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(dataToSend)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cartData: cart, totalAmount, paymentMethod: 'cash' })
                 });
 
                 const data = await response.json();
-
                 if (data.success) {
-                    alert(`Pesanan berhasil disimpan! ID Pesanan: ${data.orderId}`);
-
-                    // Bersihkan keranjang setelah sukses
+                    alert(`Pesanan berhasil! ID: ${data.orderId}`);
                     localStorage.removeItem('cart');
-
-                    // Redirect ke halaman riwayat pesanan (history)
                     window.location.href = '/history';
                 } else {
-                    alert('Gagal memproses pesanan: ' + data.message);
-
-                    // Jika server mengembalikan error 401 (Unauthorized - Belum Login)
                     if (response.status === 401) {
-                        alert("Anda harus login untuk menyelesaikan pesanan.");
+                        alert("Login dulu!");
                         window.location.href = '/login';
+                    } else {
+                        alert('Gagal: ' + data.message);
                     }
                 }
-            } catch (error) {
-                console.error('Error koneksi atau server:', error);
-                alert('Terjadi kesalahan saat berkomunikasi dengan server.');
+            } else {
+                // Gunakan Midtrans untuk QRIS, DANA, ShopeePay, dll
+                await proceedToMidtransPayment(cart, totalAmount, paymentMethod);
             }
         }
 
-
-        // FUNGSI UNTUK MERENDER TAMPILAN KERANJANG
-        // ----------------------------------------
         function renderCart() {
             const cart = getCart();
             const container = document.getElementById('cart-container');
 
             if (cart.length === 0) {
                 container.innerHTML = `
-                    <div class="c-kosong">
-                        <span class="material-symbols-outlined">shopping_bag</span>
-                        <p>TIDAK ADA PRODUK DI KERANJANG</p>
-                    </div>
-                `;
+                <div class="c-kosong">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                    <p>TIDAK ADA PRODUK DI KERANJANG</p>
+                </div>
+            `;
                 return;
             }
 
@@ -350,59 +366,40 @@
                 const subtotal = item.harga * item.qty;
                 total += subtotal;
                 html += `
-                    <li>
-                        <div class="item-info">
-                            <strong>${item.nama}</strong>
-                            <div class="qty-control">
-                                <button class="qty-btn" onclick="updateQty(${index}, -1)">−</button>
-                                <span class="qty-display">${item.qty}</span>
-                                <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
-                            </div>
+                <li>
+                    <div class="item-info">
+                        <strong>${item.nama}</strong>
+                        <div class="qty-control">
+                            <button class="qty-btn" onclick="updateQty(${index}, -1)">−</button>
+                            <span class="qty-display">${item.qty}</span>
+                            <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
                         </div>
-                        <div style="display:flex; flex-direction:column; align-items: flex-end; gap: 5px;">
-                            <div>Rp ${subtotal.toLocaleString('id-ID')}</div>
-                            <button class="hapus-btn" onclick="removeItem(${index})">Hapus</button>
-                        </div>
-                    </li>
-                `;
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items: flex-end; gap: 5px;">
+                        <div>Rp ${subtotal.toLocaleString('id-ID')}</div>
+                        <button class="hapus-btn" onclick="removeItem(${index})">Hapus</button>
+                    </div>
+                </li>
+            `;
             });
 
             html += `</ul>`;
             html += `<div class="total">Grand Total: Rp ${total.toLocaleString('id-ID')}</div>`;
 
-            // HTML Metode Pembayaran
-            html += `<div class="payment">
-                <h4>METODE PEMBAYARAN</h4>
-                
-                <label class="pay">
-                    <input type="radio" name="metode" value="qris" checked>
-                    <span>QRIS</span>
-                </label>
+            html += `
+        <div class="payment">
+            <h4>METODE PEMBAYARAN</h4>
+            <label class="pay"><input type="radio" name="metode" value="qris" checked><span>QRIS</span></label>
+            <label class="pay"><input type="radio" name="metode" value="dana"><span>DANA</span></label>
+            <label class="pay"><input type="radio" name="metode" value="shopeepay"><span>SHOPEEPAY</span></label>
+            <label class="pay"><input type="radio" name="metode" value="cash"><span>CASH (Bayar di tempat)</span></label>
+        </div>
+        <button class="checkout-btn" onclick="proceedToCheckout()">LANJUT KE PEMBAYARAN</button>`;
 
-                <label class="pay">
-                    <input type="radio" name="metode" value="dana">
-                    <span>DANA</span>
-                </label>
-
-                <label class="pay">
-                    <input type="radio" name="metode" value="shopeepay">
-                    <span>SHOPEEPAY</span>
-                </label>
-
-                <label class="pay">
-                    <input type="radio" name="metode" value="cash">
-                    <span>CASH (Bayar di tempat)</span>
-                </label>
-            </div>`;
-
-            html += `<button class="checkout-btn" onclick="proceedToCheckout()">LANJUT KE PEMBAYARAN</button>`;
             container.innerHTML = html;
         }
 
-        // WAJIB: panggil renderCart saat halaman dimuat
         document.addEventListener('DOMContentLoaded', renderCart);
-
-        // Expose fungsi ke global scope
         window.updateQty = updateQty;
         window.removeItem = removeItem;
         window.proceedToCheckout = proceedToCheckout;
